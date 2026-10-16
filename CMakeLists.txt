@@ -10,7 +10,11 @@ add_executable(Desafio2-2 main.cpp
     UdeABook.cpp
     Lista.h
     Cadena.h
-    Cadena.cpp)
+    Cadena.cpp
+    Foto.h
+    Foto.cpp
+    Album.h
+    Album.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS Desafio2-2
