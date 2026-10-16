@@ -5,7 +5,12 @@ project(Desafio2-2 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(Desafio2-2 main.cpp)
+add_executable(Desafio2-2 main.cpp
+    UdeABook.h
+    UdeABook.cpp
+    Lista.h
+    Cadena.h
+    Cadena.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS Desafio2-2
