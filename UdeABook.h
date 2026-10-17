@@ -5,14 +5,17 @@
 #include "Lista.h"
 #include "Usuario.h"
 
+using namespace std;
+
 class UdeABook {
 private:
 
     Lista<Usuario> usuarios;
-    char* leerLinea(std::ifstream& archivo);
+    bool leerLinea(ifstream& archivo, Cadena& linea);
     char** separarCampos(const char* linea, int& cantidad);
     void liberarCampos(char** campos, int cantidad);
     bool cargarUsuarios(const char* ruta);
+    bool cargarAmistades(const char* ruta);
 
 
 public:

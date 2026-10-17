@@ -1,6 +1,7 @@
 #ifndef USUARIO_H
 #define USUARIO_H
 
+#include <iostream>
 #include "Cadena.h"
 
 class Usuario {

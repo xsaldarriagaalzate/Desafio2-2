@@ -2,6 +2,7 @@
 #define MENSAJE_H
 
 #include <iostream>
+#include "Cadena.h"
 #include "Fecha.h"
 
 class Mensaje {
@@ -9,27 +10,22 @@ public:
     static const int MAX_TEXTO = 512;
 
 private:
-    char* emisor;
-    char* receptor;
-    char* texto;
+    int emisor;
+    int receptor;
+    Cadena texto;
     Fecha fecha;
     bool leido;
 
-    static int longitud(const char* s);
-    static char* duplicar(const char* s);
-
 public:
+
     Mensaje();
-    Mensaje(const char* emisor, const char* receptor, const char* texto,
-            const Fecha& fecha, bool leido = false);
-    Mensaje(const Mensaje& otro);
-    Mensaje& operator=(const Mensaje& otro);
-    ~Mensaje();
+    Mensaje(int e, int r, const char* t, const Fecha& f, bool l = false);
+    Mensaje(int e, int r, const char* t);
 
-    static bool textoValido(const char* texto);
+    static bool textoValido(const char* t);
 
-    const char* getEmisor() const;
-    const char* getReceptor() const;
+    int getEmisor() const;
+    int getReceptor() const;
     const char* getTexto() const;
     const Fecha& getFecha() const;
     bool estaLeido() const;
@@ -40,11 +36,12 @@ public:
     unsigned long memoria() const;
 
     void mostrar() const;
+    void mostrarCon(const char* nombreEmisor, const char* nombreReceptor) const;
 
-    bool operator<(const Mensaje& otro) const;
-    bool operator==(const Mensaje& otro) const;
+    bool operator<(const Mensaje& o) const;    // por fecha (para ordenar)
+    bool operator==(const Mensaje& o) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Mensaje& m);
 };
 
-#endif // MENSAJE_H
+#endif

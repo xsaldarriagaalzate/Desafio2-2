@@ -13,15 +13,18 @@ public:
     Cadena();
     Cadena(const char* texto);
 
+    Cadena(const char* s, int n);
+
     Cadena(const Cadena& otraCadena);
     Cadena& operator=(const Cadena& otraCadena);
+
     ⁓Cadena();
 
     bool operator==(const Cadena& otraCadena);
     bool operator!=(const Cadena& otraCadena);
     bool operator<(const Cadena& otraCadena);
 
-    const char* c_str() const { return datos; }
+    const char* cadena_char() const { return datos; }
     int largo() const { return len; }
 
 };

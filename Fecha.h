@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+using namespace std;
+
 class Fecha {
 private:
     int dia;
@@ -23,12 +25,11 @@ public:
 
     bool esValida() const;
 
-    // Entero comparable aaaammdd (ej: 05/10/2026 -> 20261005).
     long clave() const;
 
     bool desdeTexto(const char* texto);
 
-    static unsigned long memoria();
+    static Fecha hoy();
 
     bool operator==(const Fecha& o) const;
     bool operator!=(const Fecha& o) const;
@@ -37,7 +38,7 @@ public:
     bool operator>(const Fecha& o) const;
     bool operator>=(const Fecha& o) const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Fecha& f);
+    friend ostream& operator<<(ostream& os, const Fecha& f);
 };
 
 #endif // FECHA_H

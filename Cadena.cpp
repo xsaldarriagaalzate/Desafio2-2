@@ -24,6 +24,12 @@ Cadena::Cadena(const char* texto) : datos(nullptr), len(0) {
     datos = duplicar(texto,len);
 }
 
+Cadena::Cadena(const char* s, int n) : datos(nullptr), len(n) {
+    datos = new char[n + 1];
+    for (int i = 0; i < n; i++) datos[i] = s[i];
+    datos[n] = '\0';
+}
+
 Cadena::Cadena(const Cadena& otraCadena) {
     datos = duplicar(otraCadena.datos, otraCadena.len);
     len = otraCadena.len;

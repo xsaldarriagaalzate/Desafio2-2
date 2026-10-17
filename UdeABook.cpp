@@ -4,14 +4,14 @@
 
 using namespace std;
 
-char* UdeABook::leerLinea(ifstream& linea) {
+bool UdeABook::leerLinea(ifstream& archivo, Cadena& linea) {
 
-    int capacidad = 0, n = 0;
+    int capacidad = 16, n = 0;
     char* temporal = new char[capacidad];
     char c;
 
-    while (linea.get(c) && c != '\n') {
-        if (c == '\n') continue;
+    while (archivo.get(c) && c != '\n') {
+        if (c == '\r') continue;
         if (n+1 == capacidad) {
             capacidad *= 2;
             char* nuevo = new char[capacidad];
@@ -24,12 +24,15 @@ char* UdeABook::leerLinea(ifstream& linea) {
         temporal[n++] = c;
     }
 
-    if (n == 0) {
+    if (n == 0 && archivo.eof()) {
         delete[] temporal;
-        return nullptr;
+        return false;
     }
-    temporal[n] = '\0';
-    return temporal;
+
+    linea = Cadena(temporal,n);
+
+    delete[] temporal;
+    return true;
 
 }
 
@@ -37,78 +40,43 @@ static bool UdeABook::finLinea(char c) {
     return c == ';' || c == '}' || c == '\0';
 }
 
-char** UdeABook::separarCampos(const char* linea, int& cantidad) {
+Lista<Cadena> UdeABook::separarCampos(const Cadena& linea) {
 
-    cantidad = 1;
+    Lista<Cadena> campos;
+    if (linea.largo() == 0) return campos;
+
+    const char* texto = linea.cadena_char();
     int i = 1;
-
-    while (!finLinea(linea[i])) {
-        if (linea[i] == ',') cantidad++;
-        i++;
-    }
-
-    char** campos = new char*[cantidad];
-
-    i = 1;
-
-    for (int c = 0; c < cantidad; c++) {
+    while (true) {
         int inicial = i;
-        while (!finLinea(linea[i]) && linea[i] != ',') {
+        while (!finLinea(texto[i]) && texto[i] != ',') {
             i++;
         }
-        int len = i - inicial;
-        campos[c] = new char[len+1];
-        for (int j = 0; j < len; j++) {
-            campos[c][j] = linea[inicial+j];
-        }
-        campos[c][len] = '\0';
+        campos.agregar(Cadena(texto + inicial, i - inicial));
+        if (finLinea(texto[i])) break;
         i++;
     }
-
     return campos;
 }
-
-void UdeABook::liberarCampos(char** campos, int cantidad) {
-    for (int c = 0; c < cantidad; c++) {
-        delete[] campos[c];
-    }
-    delete[] campos;
-}
-
 
 bool UdeABook::cargarUsuarios(const char* ruta) {
     ifstream archivo(ruta);
     if (!archivo.is_open()) return false;
 
-    char* linea1;
-    while ((linea1 = leerLinea(archivo)) != nullptr) {
-        char* linea2 = leerLinea(archivo);
-        char* linea3 = leerLinea(archivo);
+    Cadena linea1, linea2, linea3;
+    while (leerLinea(archivo,linea1)) {
 
-        if (linea2 == nullptr || linea3 == nullptr) {   // usuario incompleto al final
-            delete[] linea1;
-            delete[] linea2;
-            delete[] linea3;
-            break;
-        }
+        if (!leerLinea(archivo,linea2) || !leerLinea(archivo,linea3)) break;
 
-        int n1 = 0, n2 = 0, n3 = 0;
-        char** campos1 = separarCampos(linea1, n1);
-        char** campos2 = separarCampos(linea2, n2);
-        char** campos3 = separarCampos(linea3, n3);
+        Lista<Cadena> campos1 = separarCampos(linea1, n1);
+        Lista<Cadena> campos2 = separarCampos(linea2, n2);
+        Lista<Cadena> campos3 = separarCampos(linea3, n3);
 
-        if (n1 == 4 && n2 == 1 && n3 == 3) {
+        if (campos1.tamanio() == 4 && campos2.tamanio() == 1 && campos3.tamanio() == 3) {
             usuarios.agregar(Usuario(campos1[0], campos1[1], campos1[2], campos1[3],
                                      campos2[0],
                                      campos3[0], campos3[1], campos3[2]));
         }
-
-        liberarCampos(campos1, n1);
-        liberarCampos(campos2, n2);
-        liberarCampos(campos3, n3);
-        delete[] linea1;
-        delete[] linea2;
-        delete[] linea3;
     }
     return true;
 }

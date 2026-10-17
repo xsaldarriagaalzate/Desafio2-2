@@ -42,12 +42,3 @@ void Album::mostrar() const {
     std::cout << nombre.c_str() << " [" << privacidadATexto() << "] - "
               << fotos.size() << " fotos\n";
 }
-
-size_t Album::memoriaDinamica() const {
-    size_t total = (nombre.largo() + 1) + (ruta.largo() + 1);
-    total += fotos.memoriaContenedor() - sizeof(fotos);
-    for (int i = 0; i < fotos.size(); i++) {
-        total += fotos[i].memoriaDinamica();
-    }
-    return total;
-}

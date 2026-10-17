@@ -17,7 +17,7 @@ bool Usuario::operator==(const Usuario& otro) const {
 }
 
 void Usuario::mostrar() const {
-    cout << "[" << nombreUsuario << "] [" << clave << "] [" << correo << "] [" << fechaNacimiento << "]\n"
-         << "  foto: [" << rutaFotoPerfil << "]\n"
-         << "  [" << ciudad << "] [" << pais << "] [" << fechaInscripcion << "]\n";
+    cout << "[" << nombreUsuario.cadena_char() << "] [" << clave.cadena_char() << "] [" << correo.cadena_char() << "] [" << fechaNacimiento.cadena_char() << "]\n"
+         << "  foto: [" << rutaFotoPerfil.cadena_char() << "]\n"
+         << "  [" << ciudad.cadena_char() << "] [" << pais.cadena_char() << "] [" << fechaInscripcion.cadena_char() << "]\n";
 }

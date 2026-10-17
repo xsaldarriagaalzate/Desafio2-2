@@ -50,7 +50,7 @@ public:
     T& operator[](int i) { return datos[i]; }
     const T& operator[](int i) const { return datos[i]; }
 
-    int size() const { return tam; }
+    int tamanio() const { return tam; }
 
     size_t memoriaContenedor() const { return sizeof(*this) + cap * sizeof(T); }
 };
