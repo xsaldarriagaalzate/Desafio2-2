@@ -41,3 +41,14 @@ void Album::mostrar() const {
     cout << nombre.cadena_char() << " [" << privacidadATexto() << "] - "
               << fotos.size() << " fotos\n";
 }
+
+size_t Album::memoriaDinamica() const {
+    size_t total = nombre.memoriaDinamica() + ruta.memoriaDinamica();
+    total += fotos.memoriaArreglo();
+    for (int i = 0; i < fotos.size(); i++) {
+        total += fotos[i].memoriaDinamica();
+    }
+    Foto vacia;
+    total += (size_t)(fotos.capacidad() - fotos.size()) * vacia.memoriaDinamica();
+    return total;
+}

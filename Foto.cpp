@@ -11,3 +11,7 @@ void Foto::mostrar() const {
     cout << rutaArchivo.cadena_char()
     << "  (likes: " << likes << ")\n";
 }
+
+size_t Foto::memoriaDinamica() const {
+    return fechaCaptura.memoriaDinamica() + rutaArchivo.memoriaDinamica();
+}

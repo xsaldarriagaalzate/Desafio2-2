@@ -38,6 +38,14 @@ bool Mensaje::estaLeido() const { return leido; }
 void Mensaje::marcarLeido() { leido = true; }
 void Mensaje::setLeido(bool valor) { leido = valor; }
 
+size_t Mensaje::memoriaDinamica() const {
+    return texto.memoriaDinamica();
+}
+
+unsigned long Mensaje::memoria() const {
+    return sizeof(*this) + memoriaDinamica();
+}
+
 void Mensaje::mostrar() const {
     cout << *this << "\n";
 }

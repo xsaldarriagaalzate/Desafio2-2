@@ -5,6 +5,8 @@
 #include "Cadena.h"
 #include "Fecha.h"
 
+using namespace std;
+
 class Mensaje {
 public:
     static const int MAX_TEXTO = 512;
@@ -33,6 +35,7 @@ public:
     void marcarLeido();
     void setLeido(bool valor);
 
+    size_t memoriaDinamica() const;
     unsigned long memoria() const;
 
     void mostrar() const;
@@ -41,7 +44,7 @@ public:
     bool operator<(const Mensaje& o) const;    // por fecha (para ordenar)
     bool operator==(const Mensaje& o) const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Mensaje& m);
+    friend ostream& operator<<(ostream& os, const Mensaje& m);
 };
 
 #endif

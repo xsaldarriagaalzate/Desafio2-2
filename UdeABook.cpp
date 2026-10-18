@@ -1,10 +1,20 @@
 #include <iostream>
 #include <fstream>
 #include "UdeABook.h"
+#include <random>
+#include <chrono>
 
 using namespace std;
 
-UdeABook::UdeABook() {}
+static mt19937 generador((unsigned)chrono::steady_clock::now().time_since_epoch().count());
+
+bool UdeABook::finLinea(char c) {
+    return c == ';' || c == '}' || c == '\0';
+}
+
+UdeABook::UdeABook() : iteraciones(0), usuarioEnSesion(-1), cantidadMejores(0) {
+    for (int k = 0; k < 3; k++) mejoresAmigos[k] = -1;
+}
 
 bool UdeABook::leerLinea(ifstream& archivo, Cadena& linea) {
 
@@ -38,9 +48,7 @@ bool UdeABook::leerLinea(ifstream& archivo, Cadena& linea) {
 
 }
 
-bool UdeABook::finLinea(char c) {
-    return c == ';' || c == '}' || c == '\0';
-}
+
 
 Lista<Cadena> UdeABook::separarCampos(const Cadena& linea) {
 
@@ -87,6 +95,24 @@ bool UdeABook::cargarUsuarios(const char* ruta) {
     return true;
 }
 
+bool UdeABook::registrarAmistad(int i, int j) {
+    int n = usuarios.size();
+    if (i < 0 || j < 0 || i >= n || j >= n || i == j) return false;
+    if (amistades.sonAmigos(i, j)) return false;
+    amistades.agregarAmistad(i, j);
+    usuarios[i].agregarAmigo(j);
+    usuarios[j].agregarAmigo(i);
+    return true;
+}
+
+int UdeABook::buscarUsuario(const Cadena& nombre) {
+    for (int k = 0; k < usuarios.size(); k++) {
+        iteraciones++;
+        if (usuarios[k].getNombre() == nombre) return k;
+    }
+    return -1;
+}
+
 bool UdeABook::separarCamposAmistades(const Cadena &linea, Cadena& dueno, Lista<Cadena> amigos) {
     const char* texto = linea.cadena_char();
     int i = 0;
@@ -105,13 +131,6 @@ bool UdeABook::separarCamposAmistades(const Cadena &linea, Cadena& dueno, Lista<
         if (texto[i] == ',') i++;
     }
     return true;
-}
-
-int UdeABook::buscarUsuario(const Cadena& nombre) const {
-    for (int i = 0; i < usuarios.size(); i++) {
-        if (usuarios[i].getNombre() == nombre) return i;
-    }
-    return -1;
 }
 
 bool UdeABook::cargarAmistades(const char *ruta) {
@@ -201,6 +220,31 @@ bool UdeABook::cargarMensajes(const char* ruta) {
     return true;
 }
 
+size_t UdeABook::memoriaTotal() const {
+    size_t total = sizeof(*this);
+
+    // 2. Lista de usuarios
+    total += usuarios.memoriaArreglo();
+    for (int i = 0; i < usuarios.size(); i++) {
+        total += usuarios[i].memoriaDinamica();
+    }
+    Usuario vacio;
+    total += (size_t)(usuarios.capacidad() - usuarios.size()) * vacio.memoriaDinamica();
+
+    total += amistades.memoriaDinamica();
+
+    total += sizeof(generador);
+
+    total += mensajes.memoriaArreglo();
+    for (int i = 0; i < mensajes.size(); i++) {
+        total += mensajes[i].memoriaDinamica();
+    }
+    Mensaje mensajeVacio;
+    total += (size_t)(mensajes.capacidad() - mensajes.size()) * mensajeVacio.memoriaDinamica();
+
+    return total;
+}
+
 bool UdeABook::cargarDatos() {
     return cargarUsuarios("usuarios.txt")
         && cargarAmistades("amistades.txt")
@@ -238,6 +282,79 @@ void UdeABook::verificarCarga() const {
         m.mostrarCon(usuarios[m.getEmisor()].getNombre().cadena_char(),
                      usuarios[m.getReceptor()].getNombre().cadena_char());
     }
+
+    cout << "[Iteraciones: " << iteraciones << " | Memoria: " << memoriaTotal() << " bytes]\n";
+}
+
+static int pesoPorComunes(int comunes) {
+    if (comunes <= 10) return 2;
+    if (comunes <= 20) return 5;
+    return 7;
+}
+
+void UdeABook::mostrarMejoresAmigos() {
+    iteraciones = 0;
+    if (usuarioEnSesion < 0 || usuarioEnSesion >= usuarios.size()) {
+        cout << "No hay una sesion iniciada\n";
+        return;
+    }
+
+    const Usuario& yo = usuarios[usuarioEnSesion];
+    Lista<int> candidatos;
+    Lista<int> pesos;
+    for (int k = 0; k < yo.cantidadAmigos(); k++) {
+        iteraciones++;
+        int j = yo.getAmigo(k);
+        int comunes = amistades.amigosEnComun(usuarioEnSesion, j, iteraciones);
+        candidatos.agregar(j);
+        pesos.agregar(pesoPorComunes(comunes));
+    }
+
+    if (candidatos.size() >= 6) {
+        for (int c = 0; c < candidatos.size(); c++) {
+            for (int k = 0; k < cantidadMejores; k++) {
+                iteraciones++;
+                if (candidatos[c] == mejoresAmigos[k]) pesos[c] = 0;
+            }
+        }
+    }
+
+    int cuantos = candidatos.size() < 3 ? candidatos.size() : 3;
+    cantidadMejores = 0;
+    for (int v = 0; v < cuantos; v++) {
+        int total = 0;
+        for (int c = 0; c < candidatos.size(); c++) {
+            iteraciones++;
+            total += pesos[c];
+        }
+        uniform_int_distribution<int> dado(0, total - 1);
+        int r = dado(generador);
+
+        int c = 0;
+        while (r >= pesos[c]) {
+            iteraciones++;
+            r -= pesos[c];
+            c++;
+        }
+        mejoresAmigos[cantidadMejores++] = candidatos[c];
+        pesos[c] = 0;
+    }
+
+    if (cantidadMejores == 0) {
+        cout << "Aun no tienes amigos para mostrar\n";
+    }
+    for (int v = 0; v < cantidadMejores; v++) {
+        cout << "Foto perfil de amigo " << (v + 1) << ": "
+             << usuarios[mejoresAmigos[v]].getRutaFotoPerfil() << "\n";
+    }
+
+    size_t memoriaLocal = sizeof(cuantos) + candidatos.memoriaContenedor() + pesos.memoriaContenedor();
+    reportarRecursos(memoriaLocal);
+}
+
+void UdeABook::reportarRecursos(size_t memoriaLocal) const {
+    cout << "[Iteraciones: " << iteraciones << " | Memoria: "
+         << (memoriaTotal() + memoriaLocal) << " bytes]\n";
 }
 
 void UdeABook::menuPrincipal() {

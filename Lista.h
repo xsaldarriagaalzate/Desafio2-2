@@ -50,9 +50,18 @@ public:
     T& operator[](int i) { return datos[i]; }
     const T& operator[](int i) const { return datos[i]; }
 
-    int size() const { return tam; }
+    void quitarEn(int i) {
+        if (i < 0 || i >= tam) return;
+        for (int k = i; k + 1 < tam; k++) datos[k] = datos[k + 1];
+        tam--;
+        datos[tam] = T();
+    }
 
-    size_t memoriaContenedor() const { return sizeof(*this) + cap * sizeof(T); }
+    int size() const { return tam; }
+    int capacidad() const { return cap; }
+
+    size_t memoriaArreglo() const { return (size_t)cap * sizeof(T); }
+    size_t memoriaContenedor() const { return sizeof(*this) + memoriaArreglo(); }
 };
 
 #endif

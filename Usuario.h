@@ -32,11 +32,11 @@ public:
     const char* getNombreUsuario() {return nombreUsuario.cadena_char();}
     const char* getClave() {return clave.cadena_char();}
     const char* getCorreo() {return correo.cadena_char();}
-    const char* getFechaNacimiento() {return fechaNacimiento.aCadena().cadena_char();}
+    const Fecha& getFechaNacimiento() {return fechaNacimiento;}
     const char* getRutaFotoPerfil() {return rutaFotoPerfil.cadena_char();}
     const char* getCiudad() {return ciudad.cadena_char();}
     const char* getPais() {return pais.cadena_char();}
-    const char* getFechaInscripcion() {return fechaInscripcion.aCadena().cadena_char();}
+    const Fecha& getFechaInscripcion() {return fechaInscripcion;}
 
     int cantidadAmigos() const { return amigos.size(); }
     int getAmigo(int i) const { return amigos[i]; }
@@ -58,6 +58,7 @@ public:
     bool operator==(const Usuario& otro) const;
 
     void mostrar() const;
+    size_t memoriaDinamica() const;
 };
 
 #endif // USUARIO_H

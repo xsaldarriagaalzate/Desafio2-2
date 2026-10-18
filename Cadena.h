@@ -27,6 +27,9 @@ public:
     const char* cadena_char() const { return datos; }
     int largo() const { return len; }
 
+    size_t memoriaDinamica() const { return len + 1; }
+    size_t memoria() const { return sizeof(*this) + memoriaDinamica(); }
+
 };
 
 #endif // CADENA_H

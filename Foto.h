@@ -28,6 +28,8 @@ public:
     void quitarLike() { if (likes > 0) likes--; }
 
     void mostrar() const;
+
+    size_t memoriaDinamica() const;
 };
 
 #endif

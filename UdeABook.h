@@ -7,6 +7,7 @@
 #include "Usuario.h"
 #include "Fecha.h"
 #include "Mensaje.h"
+#include "MatrizAmistad.h"
 
 using namespace std;
 
@@ -14,7 +15,13 @@ class UdeABook {
 private:
 
     Lista<Usuario> usuarios;
-    Lista<Mensaje> mensajes;
+    MatrizAmistad amistades;
+
+    long iteraciones;
+    int usuarioEnSesion;
+
+    int mejoresAmigos[3];
+    int cantidadMejores;
 
     bool leerLinea(ifstream& archivo, Cadena& linea);
     Lista<Cadena> separarCampos(const Cadena& linea);
@@ -26,15 +33,21 @@ private:
     bool cargarSolicitudes(const char* ruta);
     bool cargarMensajes(const char* ruta);
 
-    int buscarUsuario(const Cadena& nombre) const;
+    int buscarUsuario(const Cadena& nombre);
+
+    bool cargarUsuarios(const char* ruta);
+
+    bool registrarAmistad(int i, int j);
 
 
 public:
     UdeABook();
     bool cargarDatos();
     void verificarCarga() const;
-
+    size_t memoriaTotal() const;
+    void mostrarMejoresAmigos();
     void menuPrincipal();
+    void reportarRecursos(size_t memoriaLocal = 0) const;
 
 };
 

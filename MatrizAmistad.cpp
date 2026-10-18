@@ -62,6 +62,10 @@ int MatrizAmistad::amigosEnComun(int i, int j, long& iteraciones) const {
     return comunes;
 }
 
+size_t MatrizAmistad::memoriaDinamica() const {
+    return (size_t)n * n;
+}
+
 size_t MatrizAmistad::memoria() const {
     return sizeof(*this) + (size_t)n * n;
 }
