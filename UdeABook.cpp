@@ -82,7 +82,7 @@ bool UdeABook::cargarUsuarios(const char* ruta) {
         Lista<Cadena> campos2 = separarCampos(linea2);
         Lista<Cadena> campos3 = separarCampos(linea3);
 
-        if (campos1.size() == 4 && campos2.size() == 1 && campos3.size() == 3) continue;
+        if (!(campos1.size() == 4 && campos2.size() == 1 && campos3.size() == 3)) continue;
 
         Fecha nacimiento, inscripcion;
         if (!nacimiento.desdeTexto(campos1[3].cadena_char()) ||
@@ -113,7 +113,7 @@ int UdeABook::buscarUsuario(const Cadena& nombre) {
     return -1;
 }
 
-bool UdeABook::separarCamposAmistades(const Cadena &linea, Cadena& dueno, Lista<Cadena> amigos) {
+bool UdeABook::separarCamposAmistades(const Cadena &linea, Cadena& dueno, Lista<Cadena>& amigos) {
     const char* texto = linea.cadena_char();
     int i = 0;
     if (texto[i] == '*') i++;
@@ -150,8 +150,7 @@ bool UdeABook::cargarAmistades(const char *ruta) {
             int b = buscarUsuario(amigos[k]);
             if (b < 0 || b == a) continue;
 
-            if (!usuarios[a].esAmigo(b)) usuarios[a].agregarAmigo(b);
-            if (!usuarios[b].esAmigo(a)) usuarios[b].agregarAmigo(a);
+            registrarAmistad(a,b);
         }
     }
     return true;
@@ -246,10 +245,13 @@ size_t UdeABook::memoriaTotal() const {
 }
 
 bool UdeABook::cargarDatos() {
-    return cargarUsuarios("usuarios.txt")
-        && cargarAmistades("amistades.txt")
-        && cargarSolicitudes("solicitudes.txt")
-        && cargarMensajes("mensajes.txt");
+    if (!cargarUsuarios("usuarios.txt")) return false;
+
+    amistades.redimensionar(usuarios.size());
+
+    return cargarAmistades("amistades.txt")
+           && cargarSolicitudes("solicitudes.txt")
+           && cargarMensajes("mensajes.txt");
 }
 
 void UdeABook::verificarCarga() const {

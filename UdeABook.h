@@ -15,6 +15,7 @@ class UdeABook {
 private:
 
     Lista<Usuario> usuarios;
+    Lista<Mensaje> mensajes;
     MatrizAmistad amistades;
 
     long iteraciones;
@@ -26,7 +27,7 @@ private:
     bool leerLinea(ifstream& archivo, Cadena& linea);
     Lista<Cadena> separarCampos(const Cadena& linea);
     bool finLinea(char c);
-    bool separarCamposAmistades(const Cadena& linea, Cadena& dueno, Lista<Cadena> amigos);
+    bool separarCamposAmistades(const Cadena& linea, Cadena& dueno, Lista<Cadena>& amigos);
 
     bool cargarUsuarios(const char* ruta);
     bool cargarAmistades(const char* ruta);
@@ -34,8 +35,6 @@ private:
     bool cargarMensajes(const char* ruta);
 
     int buscarUsuario(const Cadena& nombre);
-
-    bool cargarUsuarios(const char* ruta);
 
     bool registrarAmistad(int i, int j);
 
@@ -46,8 +45,8 @@ public:
     void verificarCarga() const;
     size_t memoriaTotal() const;
     void mostrarMejoresAmigos();
-    void menuPrincipal();
     void reportarRecursos(size_t memoriaLocal = 0) const;
+    void menuPrincipal();
 
 };
 
