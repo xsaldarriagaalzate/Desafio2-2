@@ -23,8 +23,8 @@ public:
     Album();
     Album(const char* nombre, const char* ruta, Privacidad privacidad);
 
-    const char* getNombre() const { return nombre.c_str(); }
-    const char* getRuta() const { return ruta.c_str(); }
+    const char* getNombre() const { return nombre.cadena_char(); }
+    const char* getRuta() const { return ruta.cadena_char(); }
     Privacidad getPrivacidad() const { return privacidad; }
     int cantidadFotos() const { return fotos.size(); }
     const Foto& getFoto(int i) const { return fotos[i]; }

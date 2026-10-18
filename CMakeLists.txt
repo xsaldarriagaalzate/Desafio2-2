@@ -20,7 +20,9 @@ add_executable(Desafio2-2 main.cpp
     Mensaje.h
     Mensaje.cpp
     Fecha.h
-    Fecha.cpp)
+    Fecha.cpp
+
+)
 
 include(GNUInstallDirs)
 install(TARGETS Desafio2-2

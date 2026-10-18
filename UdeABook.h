@@ -12,13 +12,17 @@ private:
 
     Lista<Usuario> usuarios;
     bool leerLinea(ifstream& archivo, Cadena& linea);
-    char** separarCampos(const char* linea, int& cantidad);
-    void liberarCampos(char** campos, int cantidad);
+    Lista<Cadena> separarCamposUsuario(const Cadena& linea);
     bool cargarUsuarios(const char* ruta);
+    Lista<Cadena> separarCamposAmistades(const Cadena& linea, Cadena dueno, Lista<Cadena> amigos);
     bool cargarAmistades(const char* ruta);
+    bool finLinea(char c);
+    int buscarUsuario(const Cadena& nombre) const;
 
 
 public:
+
+
 
     UdeABook();
     bool cargarDatos();

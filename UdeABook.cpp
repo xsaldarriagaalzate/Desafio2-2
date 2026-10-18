@@ -36,11 +36,11 @@ bool UdeABook::leerLinea(ifstream& archivo, Cadena& linea) {
 
 }
 
-static bool UdeABook::finLinea(char c) {
+bool UdeABook::finLinea(char c) {
     return c == ';' || c == '}' || c == '\0';
 }
 
-Lista<Cadena> UdeABook::separarCampos(const Cadena& linea) {
+Lista<Cadena> UdeABook::separarCamposUsuario(const Cadena& linea) {
 
     Lista<Cadena> campos;
     if (linea.largo() == 0) return campos;
@@ -68,14 +68,65 @@ bool UdeABook::cargarUsuarios(const char* ruta) {
 
         if (!leerLinea(archivo,linea2) || !leerLinea(archivo,linea3)) break;
 
-        Lista<Cadena> campos1 = separarCampos(linea1, n1);
-        Lista<Cadena> campos2 = separarCampos(linea2, n2);
-        Lista<Cadena> campos3 = separarCampos(linea3, n3);
+        Lista<Cadena> campos1 = separarCamposUsuario(linea1);
+        Lista<Cadena> campos2 = separarCamposUsuario(linea2);
+        Lista<Cadena> campos3 = separarCamposUsuario(linea3);
 
         if (campos1.tamanio() == 4 && campos2.tamanio() == 1 && campos3.tamanio() == 3) {
             usuarios.agregar(Usuario(campos1[0], campos1[1], campos1[2], campos1[3],
                                      campos2[0],
                                      campos3[0], campos3[1], campos3[2]));
+        }
+    }
+    return true;
+}
+
+bool UdeABook::separarCamposAmistades(const Cadena &linea, Cadena dueno, Lista<Cadena> amigos) {
+    const char* texto = linea.cadena_char();
+    int i = 0;
+    if (texto[i] == '*') i++;
+
+    int ini = i;
+    while (texto[i] != ':' && texto[i] != '\0') i++;
+    if (texto[i] != ':') return false;
+    dueno = Cadena(texto + ini, i - ini);
+    i++;
+
+    while (texto[i] != ';' && texto[i] != '\0') {
+        ini = i;
+        while (texto[i] != ',' && texto[i] != ';' && texto[i] != '\0') i++;
+        if (i > ini) amigos.agregar(Cadena(texto + ini, i - ini));
+        if (texto[i] == ',') i++;
+    }
+    return true;
+}
+
+int UdeABook::buscarUsuario(const Cadena& nombre) const {
+    for (int i = 0; i < usuarios.size(); i++) {
+        if (usuarios[i].getNombre() == nombre) return i;
+    }
+    return -1;
+}
+
+bool UdeABook::cargarAmistades(const char *ruta) {
+    ifstream archivo(ruta);
+    if (!archivo.is_open()) return false;
+
+    Cadena linea, dueno;
+    while (leerLinea(archivo,linea)) {
+        Lista<Cadena> amigos;
+
+        if(!separarCamposAmistades(archivo,dueno,amigos)) continue;
+
+        int a = buscarUsuario(dueno);
+        if (a < 0) continue;
+
+        for (int k = 0; k < amigos.size(); k++) {
+            int b = buscarUsuario(amigos[k]);
+            if (b < 0 || b == a) continue;
+
+            if (!usuarios[a].esAmigo(b)) usuarios[a].agregarAmigo(b);
+            if (!usuarios[b].esAmigo(a)) usuarios[b].agregarAmigo(a);
         }
     }
     return true;

@@ -18,11 +18,11 @@ public:
     Cadena(const Cadena& otraCadena);
     Cadena& operator=(const Cadena& otraCadena);
 
-    ⁓Cadena();
+    ~Cadena();
 
-    bool operator==(const Cadena& otraCadena);
-    bool operator!=(const Cadena& otraCadena);
-    bool operator<(const Cadena& otraCadena);
+    bool operator==(const Cadena& otraCadena) const;
+    bool operator!=(const Cadena& otraCadena) const;
+    bool operator<(const Cadena& otraCadena) const;
 
     const char* cadena_char() const { return datos; }
     int largo() const { return len; }
