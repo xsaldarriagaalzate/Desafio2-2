@@ -254,6 +254,57 @@ bool UdeABook::cargarMensajes(const char* ruta) {
     return true;
 }
 
+static bool aEnteroLargo(const Cadena& c, long& valor) {
+    const char* t = c.cadena_char();
+    if (c.largo() == 0 || c.largo() > 12) return false;
+    valor = 0;
+    for (int i = 0; t[i] != '\0'; i++) {
+        if (t[i] < '0' || t[i] > '9') return false;
+        valor = valor * 10 + (t[i] - '0');
+    }
+    return true;
+}
+
+bool UdeABook::cargarAlbumes(const char* ruta) {
+    ifstream archivo(ruta);
+    if (!archivo.is_open()) return false;
+
+    Cadena linea;
+    int dueno = -1;      // usuario del album actual (-1 = album invalido)
+    int album = -1;      // posicion del album actual dentro de ese usuario
+
+    while (leerLinea(archivo, linea)) {
+        if (linea.largo() == 0) continue;
+        char tipo = linea.cadena_char()[0];
+        Lista<Cadena> campos = separarCampos(linea);
+
+        if (tipo == '*') {
+            dueno = -1;
+            if (campos.size() != 4) continue;
+            int u = buscarUsuario(campos[0]);
+            if (u < 0) continue;
+            usuarios[u].agregarAlbum(Album(campos[1].cadena_char(), campos[2].cadena_char(),
+                                           Album::privacidadDesdeTexto(campos[3].cadena_char())));
+            dueno = u;
+            album = usuarios[u].cantidadAlbumes() - 1;
+        } else if (tipo == '{') {
+            if (dueno < 0 || campos.size() < 4) continue;
+            Fecha captura;
+            long tamano, likes;
+            if (!captura.desdeTexto(campos[0].cadena_char())) continue;
+            if (!aEnteroLargo(campos[1], tamano) || !aEnteroLargo(campos[3], likes)) continue;
+
+            Foto f(campos[0].cadena_char(), tamano, campos[2].cadena_char(), (int)likes);
+            for (int k = 4; k < campos.size(); k++) {
+                int u = buscarUsuario(campos[k]);
+                if (u >= 0) f.agregarLiker(u);
+            }
+            usuarios[dueno].getAlbum(album).agregarFoto(f);
+        }
+    }
+    return true;
+}
+
 size_t UdeABook::memoriaTotal() const {
     size_t total = sizeof(*this);
 
@@ -287,6 +338,7 @@ bool UdeABook::cargarDatos() {
     return cargarAmistades("amistades.txt")
            && cargarSolicitudes("solicitudes.txt")
            && cargarMensajes("mensajes.txt");
+           && cargarAlbumes("albumes.txt");
 }
 
 void UdeABook::verificarCarga() const {
@@ -625,4 +677,78 @@ void UdeABook::buscarMensajesPorFecha() {
     reportarRecursos(sizeof(t1) + sizeof(t2) + sizeof(ini) + sizeof(fin));
 }
 
-void UdeABook::visitarPerfil() { cout << "Proximamente\n"; }
+size_t UdeABook::carrusel(Album& album) {
+    if (album.cantidadFotos() == 0) {
+        cout << "El album no tiene fotos\n";
+        return 0;
+    }
+    int actual = 0;
+    char op;
+    do {
+        iteraciones++;
+        Foto& f = album.getFoto(actual);
+        bool gusta = f.leGusta(usuarioEnSesion);
+        iteraciones += f.cantidadLikers();
+
+        cout << "\nFoto " << (actual + 1) << " de " << album.cantidadFotos() << "\n"
+             << f.getRutaArchivo() << "\n"
+             << "Likes: " << f.getLikes() << (gusta ? "  (te gusta)" : "") << "\n\n"
+             << "1.- Siguiente\n"
+             << "2.- Previa\n"
+             << "3.- " << (gusta ? "Quitar like" : "Dar like") << "\n"
+             << "0.- Salir del album\n"
+             << "Su opcion: ";
+        op = leerOpcion();
+        if (cin.eof()) op = '0';
+
+        if (op == '1') actual = album.indiceSiguiente(actual);
+        else if (op == '2') actual = album.indicePrevio(actual);
+        else if (op == '3') {
+            f.alternarLike(usuarioEnSesion);
+            iteraciones += f.cantidadLikers();
+            cambiosPendientes++;
+        }
+        else if (op != '0') cout << "Opcion no valida\n";
+    } while (op != '0');
+    return sizeof(actual) + sizeof(op);
+}
+
+void UdeABook::visitarPerfil() {
+    iteraciones = 0;
+    char nombre[64];
+    cout << "Nombre de usuario del amigo: ";
+    leerLineaConsola(nombre, 64);
+
+    int a = buscarUsuario(Cadena(nombre));
+    if (a < 0 || !amistades.sonAmigos(usuarioEnSesion, a)) {
+        cout << "Ese usuario no es tu amigo\n";
+        reportarRecursos(sizeof(nombre) + sizeof(a));
+        return;
+    }
+
+    Usuario& amigo = usuarios[a];
+    Lista<int> visibles;
+    for (int k = 0; k < amigo.cantidadAlbumes(); k++) {
+        iteraciones++;
+        if (amigo.getAlbum(k).esVisiblePara(false, true)) visibles.agregar(k);
+    }
+
+    size_t memoriaCarrusel = 0;
+    int n = -1;
+    if (visibles.size() == 0) {
+        cout << amigo.getNombreUsuario() << " no tiene albumes disponibles para ti\n";
+    } else {
+        cout << "\nAlbumes de " << amigo.getNombreUsuario() << ":\n";
+        for (int k = 0; k < visibles.size(); k++) {
+            iteraciones++;
+            cout << (k + 1) << ".- ";
+            amigo.getAlbum(visibles[k]).mostrar();
+        }
+        cout << "Numero de album (0 para volver): ";
+        n = leerEntero();
+        if (n >= 1 && n <= visibles.size())
+            memoriaCarrusel = carrusel(amigo.getAlbum(visibles[n - 1]));
+    }
+    reportarRecursos(sizeof(nombre) + sizeof(a) + sizeof(n) + sizeof(memoriaCarrusel)
+                     + visibles.memoriaContenedor() + memoriaCarrusel);
+}

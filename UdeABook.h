@@ -33,6 +33,7 @@ private:
     bool cargarAmistades(const char* ruta);
     bool cargarSolicitudes(const char* ruta);
     bool cargarMensajes(const char* ruta);
+    bool cargarAlbumes(const char* ruta);
 
     int buscarUsuario(const Cadena& nombre);
 
@@ -49,6 +50,9 @@ private:
     void enviarMensaje();
     void leerMensajesNuevos();
     void buscarMensajesPorFecha();
+
+    bool guardarAlbumes(const char* ruta) const;
+    size_t carrusel(Album& album);
 
 public:
     UdeABook();

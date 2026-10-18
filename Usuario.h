@@ -5,6 +5,7 @@
 #include "Cadena.h"
 #include "Lista.h"
 #include "Fecha.h"
+#include "Album.h"
 
 class Usuario {
 private:
@@ -20,6 +21,7 @@ private:
     Lista<int> solicitudes;
     Lista<int> enviados;
     Lista<int> recibidos;
+    Lista<Album> albumes;
 
 public:
     Usuario();
@@ -57,6 +59,11 @@ public:
 
     bool claveCorrecta(const Cadena& c) const { return clave == c; }
     void eliminarSolicitud(int k) { solicitudes.eliminarEn(k); }
+
+    void agregarAlbum(const Album& a) { albumes.agregar(a); }
+    int cantidadAlbumes() const { return albumes.size(); }
+    const Album& getAlbum(int i) const { return albumes[i]; }
+    Album& getAlbum(int i) { return albumes[i]; }
 
     bool operator==(const Usuario& otro) const;
 

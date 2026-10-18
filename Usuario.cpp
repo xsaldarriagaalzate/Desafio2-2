@@ -34,7 +34,12 @@ void Usuario::mostrar() const {
 }
 
 size_t Usuario::memoriaDinamica() const {
-    return nombreUsuario.memoriaDinamica() + clave.memoriaDinamica() +
+    size_t total = albumes.memoriaArreglo();
+    for (int i = 0; i < albumes.size(); i++)
+        total += albumes[i].memoriaDinamica();
+    Album albumVacio;
+    total += (size_t)(albumes.capacidad() - albumes.size()) * albumVacio.memoriaDinamica();
+    return total + nombreUsuario.memoriaDinamica() + clave.memoriaDinamica() +
            correo.memoriaDinamica() + rutaFotoPerfil.memoriaDinamica() +
            ciudad.memoriaDinamica() + pais.memoriaDinamica() +
            amigos.memoriaArreglo() + solicitudes.memoriaArreglo() +

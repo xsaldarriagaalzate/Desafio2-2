@@ -4,11 +4,14 @@
 #include <iostream>
 #include <cstddef>
 #include "Cadena.h"
+#include "Lista.h"
 
 using namespace std;
 
 class Foto {
 private:
+
+    Lista<int> likers;
     Cadena fechaCaptura;
     long tamano;
     Cadena rutaArchivo;
@@ -24,8 +27,11 @@ public:
     const char* getRutaArchivo() const { return rutaArchivo.cadena_char(); }
     int getLikes() const { return likes; }
 
-    void darLike() { likes++; }
-    void quitarLike() { if (likes > 0) likes--; }
+    int cantidadLikers() const { return likers.size(); }
+    int getLiker(int k) const { return likers[k]; }
+    bool leGusta(int usuario) const;
+    bool alternarLike(int usuario);
+    void agregarLiker(int usuario);
 
     void mostrar() const;
 
