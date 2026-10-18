@@ -1,5 +1,4 @@
 #include "Album.h"
-#include <iostream>
 
 Album::Album() : privacidad(PRIVADO) {}
 
@@ -39,6 +38,6 @@ const char* Album::privacidadATexto() const {
 }
 
 void Album::mostrar() const {
-    std::cout << nombre.c_str() << " [" << privacidadATexto() << "] - "
+    cout << nombre.cadena_char() << " [" << privacidadATexto() << "] - "
               << fotos.size() << " fotos\n";
 }

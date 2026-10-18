@@ -1,8 +1,11 @@
 #ifndef FOTO_H
 #define FOTO_H
 
+#include <iostream>
 #include <cstddef>
 #include "Cadena.h"
+
+using namespace std;
 
 class Foto {
 private:

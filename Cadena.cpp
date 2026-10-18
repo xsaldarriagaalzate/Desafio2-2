@@ -65,7 +65,3 @@ bool Cadena::operator<(const Cadena& otraCadena) const {
     }
     return datos[i] == '\0' && otraCadena.datos[i] != '\0';
 }
-
-const char* Cadena::cadena_char()  { return datos; }
-
-int Cadena::largo() { return len; }

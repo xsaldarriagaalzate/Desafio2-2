@@ -4,6 +4,8 @@
 
 using namespace std;
 
+UdeABook::UdeABook() {}
+
 bool UdeABook::leerLinea(ifstream& archivo, Cadena& linea) {
 
     int capacidad = 16, n = 0;
@@ -72,7 +74,7 @@ bool UdeABook::cargarUsuarios(const char* ruta) {
         Lista<Cadena> campos2 = separarCampos(linea2);
         Lista<Cadena> campos3 = separarCampos(linea3);
 
-        if (campos1.tamanio() == 4 && campos2.tamanio() == 1 && campos3.tamanio() == 3) {
+        if (campos1.size() == 4 && campos2.size() == 1 && campos3.size() == 3) {
             usuarios.agregar(Usuario(campos1[0], campos1[1], campos1[2], campos1[3],
                                      campos2[0],
                                      campos3[0], campos3[1], campos3[2]));
@@ -81,7 +83,7 @@ bool UdeABook::cargarUsuarios(const char* ruta) {
     return true;
 }
 
-bool UdeABook::separarCamposAmistades(const Cadena &linea, Cadena dueno, Lista<Cadena> amigos) {
+bool UdeABook::separarCamposAmistades(const Cadena &linea, Cadena& dueno, Lista<Cadena> amigos) {
     const char* texto = linea.cadena_char();
     int i = 0;
     if (texto[i] == '*') i++;
@@ -116,7 +118,7 @@ bool UdeABook::cargarAmistades(const char *ruta) {
     while (leerLinea(archivo,linea)) {
         Lista<Cadena> amigos;
 
-        if(!separarCamposAmistades(archivo,dueno,amigos)) continue;
+        if(!separarCamposAmistades(linea,dueno,amigos)) continue;
 
         int a = buscarUsuario(dueno);
         if (a < 0) continue;

@@ -1,10 +1,13 @@
 #ifndef ALBUM_H
 #define ALBUM_H
 
+#include <iostream>
 #include <cstddef>
 #include "Cadena.h"
 #include "Foto.h"
 #include "Lista.h"
+
+using namespace std;
 
 
 class Album {

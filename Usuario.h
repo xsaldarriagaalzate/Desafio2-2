@@ -27,6 +27,8 @@ public:
             const Cadena& rutaFotoPerfil,
             const Cadena& ciudad, const Cadena& pais, const Cadena& fechaInscripcion);
 
+    const Cadena& getNombre() const { return nombreUsuario; }
+
     const char* getNombreUsuario() {return nombreUsuario.cadena_char();}
     const char* getClave() {return clave.cadena_char();}
     const char* getCorreo() {return correo.cadena_char();}

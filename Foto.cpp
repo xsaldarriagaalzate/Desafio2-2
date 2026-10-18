@@ -1,5 +1,4 @@
 #include "Foto.h"
-#include "Cadena.h"
 
 using namespace std;
 
