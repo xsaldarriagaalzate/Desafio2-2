@@ -337,7 +337,7 @@ bool UdeABook::cargarDatos() {
 
     return cargarAmistades("amistades.txt")
            && cargarSolicitudes("solicitudes.txt")
-           && cargarMensajes("mensajes.txt");
+           && cargarMensajes("mensajes.txt")
            && cargarAlbumes("albumes.txt");
 }
 
@@ -757,7 +757,7 @@ void UdeABook::visitarPerfil() {
     }
     reportarRecursos(sizeof(nombre) + sizeof(a) + sizeof(n) + sizeof(memoriaCarrusel)
                      + visibles.memoriaContenedor() + memoriaCarrusel);
-
+}
 
 bool UdeABook::guardarAmistades(const char* ruta) const {
     ofstream out(ruta);

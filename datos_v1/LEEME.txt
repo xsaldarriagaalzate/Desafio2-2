@@ -1,0 +1,36 @@
+VERSION 1  (1000 usuarios, 11089 amistades, 21412 mensajes)
+Carpeta: datos_v1   (usuarios.txt, amistades.txt, solicitudes.txt, mensajes.txt, albumes.txt)
+
+Usuario para el video:  juanito76   clave: Clave123
+  - Amigos: 14
+  - Solicitudes recibidas pendientes: 4
+  - Mensajes recibidos: 60  (sin leer: 21)
+  - Buscar mensajes en rango de 6 semanas: 01/09/2026 a 12/10/2026 -> 14 mensajes
+
+Sugerencias (K=12): hay 132 candidatos. La de mayor coincidencia es camilaR con 10 amigos en comun (la segunda tiene 8), asi que se ve claro a quien enviar la solicitud.
+
+Visitar perfil (2 albumes con 5+ fotos): estos amigos de juanito76 tienen 3 albumes
+(publico, amigos y privado, cada uno con 5 a 8 fotos; el privado NO debe aparecer):
+  gabriela, nicolas, luisa8, fabianR, linaM, karen_ing72
+
+VERSION 2  (1200 usuarios, 15924 amistades, 30962 mensajes)
+Carpeta: datos_v2   (usuarios.txt, amistades.txt, solicitudes.txt, mensajes.txt, albumes.txt)
+
+Usuario para el video:  juanito76   clave: Clave123
+  - Amigos: 14
+  - Solicitudes recibidas pendientes: 5
+  - Mensajes recibidos: 48  (sin leer: 4)
+  - Buscar mensajes en rango de 6 semanas: 01/09/2026 a 12/10/2026 -> 7 mensajes
+
+Sugerencias (K=12): hay 166 candidatos. La de mayor coincidencia es santiagoQ con 10 amigos en comun (la segunda tiene 9), asi que se ve claro a quien enviar la solicitud.
+
+Visitar perfil (2 albumes con 5+ fotos): estos amigos de juanito76 tienen 3 albumes
+(publico, amigos y privado, cada uno con 5 a 8 fotos; el privado NO debe aparecer):
+  santiagoxx51, tatianaM9, andres_ing12, danielaUdeA61, catalinaxx84, manuela_ing45
+
+Notas
+- Las claves de los demas usuarios son aleatorias; para el video solo necesitas juanito76.
+- Todos los archivos cargan completos con el programa (probado: 0 lineas rechazadas).
+- Los mensajes estan en orden cronologico y solo entre amigos, como espera el programa.
+- Copia los 5 .txt de UNA version junto al ejecutable (carpeta de trabajo del build en Qt Creator).
+- Al guardar, el programa reescribe esos archivos: conserva una copia de la version original para repetir la demo.
