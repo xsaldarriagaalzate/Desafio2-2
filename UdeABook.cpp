@@ -40,7 +40,7 @@ bool UdeABook::finLinea(char c) {
     return c == ';' || c == '}' || c == '\0';
 }
 
-Lista<Cadena> UdeABook::separarCamposUsuario(const Cadena& linea) {
+Lista<Cadena> UdeABook::separarCampos(const Cadena& linea) {
 
     Lista<Cadena> campos;
     if (linea.largo() == 0) return campos;
@@ -68,9 +68,9 @@ bool UdeABook::cargarUsuarios(const char* ruta) {
 
         if (!leerLinea(archivo,linea2) || !leerLinea(archivo,linea3)) break;
 
-        Lista<Cadena> campos1 = separarCamposUsuario(linea1);
-        Lista<Cadena> campos2 = separarCamposUsuario(linea2);
-        Lista<Cadena> campos3 = separarCamposUsuario(linea3);
+        Lista<Cadena> campos1 = separarCampos(linea1);
+        Lista<Cadena> campos2 = separarCampos(linea2);
+        Lista<Cadena> campos3 = separarCampos(linea3);
 
         if (campos1.tamanio() == 4 && campos2.tamanio() == 1 && campos3.tamanio() == 3) {
             usuarios.agregar(Usuario(campos1[0], campos1[1], campos1[2], campos1[3],
@@ -132,18 +132,104 @@ bool UdeABook::cargarAmistades(const char *ruta) {
     return true;
 }
 
-bool UdeABook::cargarDatos() {
-    cargarUsuarios("usuarios.txt");
-    if (cargarUsuarios("usuarios.txt")) {
-        return true;
+bool UdeABook::cargarSolicitudes(const char* ruta) {
+    ifstream archivo(ruta);
+    if (!archivo.is_open()) return false;
+
+    Cadena linea;
+    while (leerLinea(archivo, linea)) {
+        const char* texto = linea.cadena_char();
+
+        int coma = 0;
+        while (texto[coma] != ',' && texto[coma] != '\0') coma++;
+        if (texto[coma] != ',') continue;
+
+        int fin = coma + 1;
+        while (texto[fin] != ';' && texto[fin] != '\0') fin++;
+
+        Cadena emisor(texto, coma);
+        Cadena receptor(texto + coma + 1, fin - coma - 1);
+
+        int e = buscarUsuario(emisor);
+        int r = buscarUsuario(receptor);
+        if (e < 0 || r < 0 || e == r) continue;
+        if (usuarios[r].esAmigo(e)) continue;
+        if (usuarios[r].tieneSolicitudDe(e)) continue;
+        if (usuarios[e].tieneSolicitudDe(r)) continue;
+
+        usuarios[r].agregarSolicitud(e);
     }
-    else return false;
+    return true;
+}
+
+bool UdeABook::cargarMensajes(const char* ruta) {
+    ifstream archivo(ruta);
+    if (!archivo.is_open()) return false;
+
+    Cadena lineaDatos, lineaTexto;
+    while (leerLinea(archivo, lineaDatos)) {
+        if (!leerLinea(archivo, lineaTexto)) break;
+
+        Lista<Cadena> campos = separarCampos(lineaDatos);
+        if (campos.size() != 4) continue;
+
+        const char* t = lineaTexto.cadena_char();
+        int n = lineaTexto.largo();
+        if (n < 3 || t[0] != '{' || t[n - 1] != '}') continue;
+        Cadena texto(t + 1, n - 2);
+
+        int e = buscarUsuario(campos[0]);
+        int r = buscarUsuario(campos[1]);
+        if (e < 0 || r < 0 || e == r) continue;
+        if (!usuarios[e].esAmigo(r)) continue;
+        Fecha f;
+        if (!f.desdeTexto(campos[2].cadena_char())) continue;
+        if (!Mensaje::textoValido(texto.cadena_char())) continue;
+        bool leido = (campos[3].largo() == 1 && campos[3].cadena_char()[0] == '1');
+
+        int indice = mensajes.size();
+        mensajes.agregar(Mensaje(e, r, texto.cadena_char(), f, leido));
+        usuarios[e].agregarEnviado(indice);
+        usuarios[r].agregarRecibido(indice);
+    }
+    return true;
+}
+
+bool UdeABook::cargarDatos() {
+    return cargarUsuarios("usuarios.txt")
+        && cargarAmistades("amistades.txt")
+        && cargarSolicitudes("solicitudes.txt")
+        && cargarMensajes("mensajes.txt");
 }
 
 void UdeABook::verificarCarga() const {
     cout << "Usuarios cargados: " << usuarios.size() << "\n";
+    cout << "Mensajes cargados: " << mensajes.size() << "\n\n";
+
     for (int i = 0; i < usuarios.size(); i++) {
+        const Usuario& u = usuarios[i];
+
         cout << i << ":\n";
-        usuarios[i].mostrar();
+        u.mostrar();
+
+        cout << "  amigos (" << u.cantidadAmigos() << "):";
+        for (int k = 0; k < u.cantidadAmigos(); k++)
+            cout << " " << usuarios[u.getAmigo(k)].getNombre().cadena_char();
+        cout << "\n";
+
+        cout << "  solicitudes recibidas (" << u.cantidadSolicitudes() << "):";
+        for (int k = 0; k < u.cantidadSolicitudes(); k++)
+            cout << " " << usuarios[u.getSolicitud(k)].getNombre().cadena_char();
+        cout << "\n";
+
+        cout << "  mensajes enviados: " << u.cantidadEnviados()
+             << " | recibidos: " << u.cantidadRecibidos() << "\n\n";
+    }
+
+    cout << "--- Mensajes ---\n";
+    for (int i = 0; i < mensajes.size(); i++) {
+        const Mensaje& m = mensajes[i];
+        m.mostrarCon(usuarios[m.getEmisor()].getNombre().cadena_char(),
+                     usuarios[m.getReceptor()].getNombre().cadena_char());
     }
 }

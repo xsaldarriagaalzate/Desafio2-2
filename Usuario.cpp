@@ -4,9 +4,9 @@ using namespace std;
 
 Usuario::Usuario() {}
 
-Usuario::Usuario(const char& nombreUsuario, const char& clave, const char& correo,
-                 const char& fechaNacimiento, const char& rutaFotoPerfil,
-                 const char& ciudad, const char& pais, const char& fechaInscripcion)
+Usuario::Usuario(const Cadena& nombreUsuario, const Cadena& clave, const Cadena& correo,
+                 const Cadena& fechaNacimiento, const Cadena& rutaFotoPerfil,
+                 const Cadena& ciudad, const Cadena& pais, const Cadena& fechaInscripcion)
     : nombreUsuario(nombreUsuario), clave(clave), correo(correo),
     fechaNacimiento(fechaNacimiento), rutaFotoPerfil(rutaFotoPerfil),
     ciudad(ciudad), pais(pais), fechaInscripcion(fechaInscripcion) {}
@@ -24,5 +24,11 @@ void Usuario::mostrar() const {
 bool Usuario::esAmigo(int indice) const {
     for (int i = 0; i < amigos.size(); i++)
         if (amigos[i] == indice) return true;
+    return false;
+}
+
+bool Usuario::tieneSolicitudDe(int indice) const {
+    for (int i = 0; i < solicitudes.size(); i++)
+        if (solicitudes[i] == indice) return true;
     return false;
 }
