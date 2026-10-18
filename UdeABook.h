@@ -18,6 +18,8 @@ private:
     Lista<Mensaje> mensajes;
     MatrizAmistad amistades;
 
+    static const int CAMBIOS_PARA_GUARDAR = 2;
+    int cambiosPendientes;
     long iteraciones;
     int usuarioEnSesion;
 
@@ -39,7 +41,6 @@ private:
 
     bool registrarAmistad(int i, int j);
 
-    void cerrarSesion();
     void administrarAmistades();
     void enviarSolicitudAmistad();
     void aceptarSolicitudes();
@@ -53,6 +54,12 @@ private:
 
     bool guardarAlbumes(const char* ruta) const;
     size_t carrusel(Album& album);
+    bool guardarAmistades(const char* ruta) const;
+    bool guardarSolicitudes(const char* ruta) const;
+    bool guardarMensajes(const char* ruta) const;
+    void guardarPendientes();
+    void cerrarSesion();
+
 
 public:
     UdeABook();
@@ -63,6 +70,7 @@ public:
     void reportarRecursos(size_t memoriaLocal = 0) const;
     void menuPrincipal();
     bool iniciarSesion();
+    bool guardarDatos() const;
 
 };
 

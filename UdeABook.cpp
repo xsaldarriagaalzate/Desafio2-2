@@ -47,7 +47,7 @@ bool UdeABook::finLinea(char c) {
     return c == ';' || c == '}' || c == '\0';
 }
 
-UdeABook::UdeABook() : iteraciones(0), usuarioEnSesion(-1), cantidadMejores(0) {
+UdeABook::UdeABook() : cambiosPendientes(0), iteraciones(0), usuarioEnSesion(-1), cantidadMejores(0) {
     for (int k = 0; k < 3; k++) mejoresAmigos[k] = -1;
 }
 
@@ -466,6 +466,7 @@ bool UdeABook::iniciarSesion() {
 }
 
 void UdeABook::cerrarSesion() {
+    guardarPendientes();
     usuarioEnSesion = -1;
     cantidadMejores = 0;
 }
@@ -493,6 +494,7 @@ void UdeABook::menuPrincipal() {
         case 'S': case 's': break;
         default: cout << "Opcion no valida\n";
         }
+        if (cambiosPendientes >= CAMBIOS_PARA_GUARDAR) guardarPendientes();
     } while (opcion != 'S' && opcion != 's');
     cerrarSesion();
 }
@@ -515,6 +517,7 @@ int UdeABook::enviarSolicitud(int destino) {
     if (usuarios[yo].tieneSolicitudDe(destino)) return 3;
     if (usuarios[destino].tieneSolicitudDe(yo)) return 4;
     usuarios[destino].agregarSolicitud(yo);
+    cambiosPendientes++;
     return 0;
 }
 
@@ -547,6 +550,7 @@ void UdeABook::aceptarSolicitudes() {
             registrarAmistad(usuarioEnSesion, otro);
             iteraciones += yo.cantidadSolicitudes();
             yo.eliminarSolicitud(n - 1);
+            cambiosPendientes++;
             cout << "Ahora eres amigo de " << usuarios[otro].getNombreUsuario() << "\n";
         }
     }
@@ -627,6 +631,7 @@ void UdeABook::enviarMensaje() {
             mensajes.agregar(Mensaje(usuarioEnSesion, a, texto));
             usuarios[usuarioEnSesion].agregarEnviado(indice);
             usuarios[a].agregarRecibido(indice);
+            cambiosPendientes++;
             cout << "Mensaje enviado\n";
         }
     }
@@ -647,6 +652,7 @@ void UdeABook::leerMensajesNuevos() {
         nuevos++;
     }
     if (nuevos == 0) cout << "No tienes mensajes nuevos\n";
+    else cambiosPendientes++;
     reportarRecursos(sizeof(nuevos));
 }
 
@@ -751,4 +757,64 @@ void UdeABook::visitarPerfil() {
     }
     reportarRecursos(sizeof(nombre) + sizeof(a) + sizeof(n) + sizeof(memoriaCarrusel)
                      + visibles.memoriaContenedor() + memoriaCarrusel);
+
+
+bool UdeABook::guardarAmistades(const char* ruta) const {
+    ofstream out(ruta);
+    if (!out.is_open()) return false;
+    for (int i = 0; i < usuarios.size(); i++) {
+        const Usuario& u = usuarios[i];
+        if (u.cantidadAmigos() == 0) continue;
+        out << '*' << u.getNombreUsuario() << ':';
+        for (int k = 0; k < u.cantidadAmigos(); k++) {
+            if (k > 0) out << ',';
+            out << usuarios[u.getAmigo(k)].getNombreUsuario();
+        }
+        out << ";\n";
+    }
+    out.flush();
+    return out.good();
+}
+
+bool UdeABook::guardarSolicitudes(const char* ruta) const {
+    ofstream out(ruta);
+    if (!out.is_open()) return false;
+    for (int r = 0; r < usuarios.size(); r++) {
+        const Usuario& u = usuarios[r];
+        for (int k = 0; k < u.cantidadSolicitudes(); k++)
+            out << usuarios[u.getSolicitud(k)].getNombreUsuario() << ','
+                << u.getNombreUsuario() << ";\n";
+    }
+    out.flush();
+    return out.good();
+}
+
+bool UdeABook::guardarMensajes(const char* ruta) const {
+    ofstream out(ruta);
+    if (!out.is_open()) return false;
+    for (int i = 0; i < mensajes.size(); i++) {
+        const Mensaje& m = mensajes[i];
+        out << '*' << usuarios[m.getEmisor()].getNombreUsuario() << ','
+            << usuarios[m.getReceptor()].getNombreUsuario() << ','
+            << m.getFecha() << ',' << (m.estaLeido() ? 1 : 0) << ";\n"
+            << '{' << m.getTexto() << "}\n";
+    }
+    out.flush();
+    return out.good();
+}
+
+bool UdeABook::guardarDatos() const {
+    return guardarAmistades("amistades.txt")
+    && guardarSolicitudes("solicitudes.txt")
+        && guardarMensajes("mensajes.txt");
+}
+
+void UdeABook::guardarPendientes() {
+    if (cambiosPendientes == 0) return;
+    if (guardarDatos()) {
+        cambiosPendientes = 0;
+        cout << "[Datos guardados]\n";
+    } else {
+        cout << "Aviso: no se pudieron guardar los datos\n";  // se reintenta en el proximo cambio
+    }
 }
