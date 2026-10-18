@@ -6,6 +6,41 @@
 
 using namespace std;
 
+static void leerLineaConsola(char* destino, int max) {
+    cin.getline(destino, max);
+    if (cin.fail() && !cin.eof()) { cin.clear(); cin.ignore(100000, '\n'); }
+    if (cin.eof()) destino[0] = '\0';
+}
+
+static char leerOpcion() {
+    char b[16];
+    leerLineaConsola(b, 16);
+    if (cin.eof()) return 's';
+    return b[0];
+}
+
+static int leerEntero() {
+    char b[16];
+    leerLineaConsola(b, 16);
+    if (b[0] == '\0') return -1;
+    int n = 0;
+    for (int i = 0; b[i] != '\0'; i++) {
+        if (b[i] < '0' || b[i] > '9' || i > 8) return -1;
+        n = n * 10 + (b[i] - '0');
+    }
+    return n;
+}
+
+static void avisoSolicitud(int codigo) {
+    switch (codigo) {
+    case 0: cout << "Solicitud enviada\n"; break;
+    case 1: cout << "Ese usuario no existe\n"; break;
+    case 2: cout << "Ya son amigos\n"; break;
+    case 3: cout << "Ese usuario ya te envio una solicitud; aceptala desde Administrar amistades\n"; break;
+    case 4: cout << "Ya le enviaste una solicitud\n"; break;
+    }
+}
+
 static mt19937 generador((unsigned)chrono::steady_clock::now().time_since_epoch().count());
 
 bool UdeABook::finLinea(char c) {
@@ -359,12 +394,44 @@ void UdeABook::reportarRecursos(size_t memoriaLocal) const {
          << (memoriaTotal() + memoriaLocal) << " bytes]\n";
 }
 
+bool UdeABook::iniciarSesion() {
+    char nombre[64], clave[64];
+    while (true) {
+        cout << "\nUsuario (escriba 'salir' para terminar): ";
+        leerLineaConsola(nombre, 64);
+        if (cin.eof() || Cadena(nombre) == Cadena("salir")) return false;
+        cout << "Clave: ";
+        leerLineaConsola(clave, 64);
+
+        int u = buscarUsuario(Cadena(nombre));
+        if (u >= 0 && usuarios[u].claveCorrecta(Cadena(clave))) {
+            usuarioEnSesion = u;
+            cantidadMejores = 0;         // sin fotos previas que evitar
+            return true;
+        }
+        cout << "Usuario o clave incorrectos\n";
+    }
+}
+
+void UdeABook::cerrarSesion() {
+    usuarioEnSesion = -1;
+    cantidadMejores = 0;
+}
+
 void UdeABook::menuPrincipal() {
-    mostrarMejoresAmigos();              // 3 fotos al entrar
+    mostrarMejoresAmigos();
     char opcion;
     do {
-        // imprimir bienvenida y menú (como en la Figura 2 del enunciado)
-        cin >> opcion;
+        cout << "\nBienvenido a UdeaBook " << usuarios[usuarioEnSesion].getNombreUsuario() << "\n\n"
+             << "Menu de opciones:\n\n"
+             << "1.- Administrar amistades\n"
+             << "2.- Visitar perfil de un amigo\n"
+             << "3.- Ver sugerencias de amistad\n"
+             << "4.- Administrar mensajes\n\n"
+             << ".- Ingrese 'N' o 'n' para alternar el grupo de fotos de perfil de amigos.\n"
+             << ".- Ingrese 'S' o 's' para cerrar su sesion.\n\n"
+             << "Su opcion: ";
+        opcion = leerOpcion();
         switch (opcion) {
         case '1': administrarAmistades(); break;
         case '2': visitarPerfil();        break;
@@ -372,8 +439,190 @@ void UdeABook::menuPrincipal() {
         case '4': administrarMensajes();  break;
         case 'N': case 'n': mostrarMejoresAmigos(); break;
         case 'S': case 's': break;
-        default: cout << "Opción no válida\n";
+        default: cout << "Opcion no valida\n";
         }
     } while (opcion != 'S' && opcion != 's');
     cerrarSesion();
 }
+
+void UdeABook::administrarAmistades() {
+    cout << "\n1.- Enviar solicitud de amistad\n"
+         << "2.- Aceptar solicitudes recibidas\n"
+         << "0.- Volver\nSu opcion: ";
+    char op = leerOpcion();
+    if (op == '1') enviarSolicitudAmistad();
+    else if (op == '2') aceptarSolicitudes();
+}
+
+int UdeABook::enviarSolicitud(int destino) {
+    int yo = usuarioEnSesion;
+    if (destino < 0 || destino >= usuarios.size() || destino == yo) return 1;
+    iteraciones += usuarios[yo].cantidadAmigos() + usuarios[yo].cantidadSolicitudes()
+                   + usuarios[destino].cantidadSolicitudes();
+    if (amistades.sonAmigos(yo, destino)) return 2;
+    if (usuarios[yo].tieneSolicitudDe(destino)) return 3;
+    if (usuarios[destino].tieneSolicitudDe(yo)) return 4;
+    usuarios[destino].agregarSolicitud(yo);
+    return 0;
+}
+
+void UdeABook::enviarSolicitudAmistad() {
+    iteraciones = 0;
+    char nombre[64];
+    cout << "Nombre de usuario: ";
+    leerLineaConsola(nombre, 64);
+    int destino = buscarUsuario(Cadena(nombre));
+    avisoSolicitud(enviarSolicitud(destino));
+    reportarRecursos(sizeof(nombre) + sizeof(destino));
+}
+
+void UdeABook::aceptarSolicitudes() {
+    iteraciones = 0;
+    Usuario& yo = usuarios[usuarioEnSesion];
+    int n = 0;
+    if (yo.cantidadSolicitudes() == 0) {
+        cout << "No tienes solicitudes pendientes\n";
+    } else {
+        cout << "Solicitudes recibidas:\n";
+        for (int k = 0; k < yo.cantidadSolicitudes(); k++) {
+            iteraciones++;
+            cout << (k + 1) << ".- " << usuarios[yo.getSolicitud(k)].getNombreUsuario() << "\n";
+        }
+        cout << "Numero a aceptar (0 para volver): ";
+        n = leerEntero();
+        if (n >= 1 && n <= yo.cantidadSolicitudes()) {
+            int otro = yo.getSolicitud(n - 1);
+            registrarAmistad(usuarioEnSesion, otro);
+            iteraciones += yo.cantidadSolicitudes();
+            yo.eliminarSolicitud(n - 1);
+            cout << "Ahora eres amigo de " << usuarios[otro].getNombreUsuario() << "\n";
+        }
+    }
+    reportarRecursos(sizeof(yo) + sizeof(n));
+}
+
+void UdeABook::verSugerencias() {
+    iteraciones = 0;
+    cout << "Cuantas sugerencias desea ver (1-20): ";
+    int k = leerEntero();
+    if (k < 1 || k > 20) {
+        cout << "Valor invalido\n";
+        reportarRecursos(sizeof(k));
+        return;
+    }
+
+    int yo = usuarioEnSesion;
+    Lista<int> candidatos, comunes;
+    for (int j = 0; j < usuarios.size(); j++) {
+        iteraciones++;
+        if (j == yo || amistades.sonAmigos(yo, j)) continue;
+        candidatos.agregar(j);
+        comunes.agregar(amistades.amigosEnComun(yo, j, iteraciones));
+    }
+
+    int mostrar = candidatos.size() < k ? candidatos.size() : k;
+    int elegidas[20];
+    for (int v = 0; v < mostrar; v++) {
+        int mejor = -1;
+        for (int c = 0; c < candidatos.size(); c++) {
+            iteraciones++;
+            if (comunes[c] >= 0 && (mejor < 0 || comunes[c] > comunes[mejor])) mejor = c;
+        }
+        elegidas[v] = candidatos[mejor];
+        cout << (v + 1) << ".- " << usuarios[elegidas[v]].getNombreUsuario()
+             << " (" << comunes[mejor] << " amigos en comun)\n";
+        comunes[mejor] = -1;
+    }
+
+    int n = 0;
+    if (mostrar == 0) {
+        cout << "No hay sugerencias disponibles\n";
+    } else {
+        cout << "Numero al que desea enviar solicitud (0 para volver): ";
+        n = leerEntero();
+        if (n >= 1 && n <= mostrar) avisoSolicitud(enviarSolicitud(elegidas[n - 1]));
+    }
+    reportarRecursos(sizeof(k) + sizeof(yo) + sizeof(mostrar) + sizeof(elegidas) + sizeof(n)
+                     + candidatos.memoriaContenedor() + comunes.memoriaContenedor());
+}
+
+void UdeABook::administrarMensajes() {
+    cout << "\n1.- Enviar mensaje\n"
+         << "2.- Leer nuevos mensajes\n"
+         << "3.- Buscar mensajes por rango de fecha\n"
+         << "0.- Volver\nSu opcion: ";
+    char op = leerOpcion();
+    if (op == '1') enviarMensaje();
+    else if (op == '2') leerMensajesNuevos();
+    else if (op == '3') buscarMensajesPorFecha();
+}
+
+void UdeABook::enviarMensaje() {
+    iteraciones = 0;
+    char nombre[64], texto[1024];
+    cout << "Nombre del amigo: ";
+    leerLineaConsola(nombre, 64);
+    int a = buscarUsuario(Cadena(nombre));
+    if (a < 0 || !amistades.sonAmigos(usuarioEnSesion, a)) {
+        cout << "Ese usuario no es tu amigo\n";
+    } else {
+        cout << "Mensaje (maximo 512 caracteres): ";
+        leerLineaConsola(texto, 1024);
+        if (!Mensaje::textoValido(texto)) {
+            cout << "Mensaje vacio o de mas de 512 caracteres\n";
+        } else {
+            int indice = mensajes.size();
+            mensajes.agregar(Mensaje(usuarioEnSesion, a, texto));
+            usuarios[usuarioEnSesion].agregarEnviado(indice);
+            usuarios[a].agregarRecibido(indice);
+            cout << "Mensaje enviado\n";
+        }
+    }
+    reportarRecursos(sizeof(nombre) + sizeof(texto) + sizeof(a));
+}
+
+void UdeABook::leerMensajesNuevos() {
+    iteraciones = 0;
+    const Usuario& yo = usuarios[usuarioEnSesion];
+    int nuevos = 0;
+
+    for (int k = 0; k < yo.cantidadRecibidos(); k++) {
+        iteraciones++;
+        Mensaje& m = mensajes[yo.getRecibido(k)];
+        if (m.estaLeido()) continue;
+        m.mostrarCon(usuarios[m.getEmisor()].getNombreUsuario(), yo.getNombreUsuario());
+        m.marcarLeido();
+        nuevos++;
+    }
+    if (nuevos == 0) cout << "No tienes mensajes nuevos\n";
+    reportarRecursos(sizeof(nuevos));
+}
+
+void UdeABook::buscarMensajesPorFecha() {
+    iteraciones = 0;
+    char t1[16], t2[16];
+    Fecha ini, fin;
+    cout << "Fecha de inicio (dd/mm/aaaa): ";
+    leerLineaConsola(t1, 16);
+    cout << "Fecha de fin (dd/mm/aaaa): ";
+    leerLineaConsola(t2, 16);
+
+    if (!ini.desdeTexto(t1) || !fin.desdeTexto(t2) || ini > fin) {
+        cout << "Fechas invalidas\n";
+    } else {
+        const Usuario& yo = usuarios[usuarioEnSesion];
+        int hallados = 0;
+        for (int k = 0; k < yo.cantidadRecibidos(); k++) {
+            iteraciones++;
+            const Mensaje& m = mensajes[yo.getRecibido(k)];
+            if (m.getFecha() > fin) break;
+            if (m.getFecha() < ini) continue;
+            m.mostrarCon(usuarios[m.getEmisor()].getNombreUsuario(), yo.getNombreUsuario());
+            hallados++;
+        }
+        if (hallados == 0) cout << "No hay mensajes en ese rango\n";
+    }
+    reportarRecursos(sizeof(t1) + sizeof(t2) + sizeof(ini) + sizeof(fin));
+}
+
+void UdeABook::visitarPerfil() { cout << "Proximamente\n"; }

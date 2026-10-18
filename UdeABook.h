@@ -38,6 +38,17 @@ private:
 
     bool registrarAmistad(int i, int j);
 
+    void cerrarSesion();
+    void administrarAmistades();
+    void enviarSolicitudAmistad();
+    void aceptarSolicitudes();
+    int  enviarSolicitud(int destino);
+    void visitarPerfil();
+    void verSugerencias();
+    void administrarMensajes();
+    void enviarMensaje();
+    void leerMensajesNuevos();
+    void buscarMensajesPorFecha();
 
 public:
     UdeABook();
@@ -47,6 +58,7 @@ public:
     void mostrarMejoresAmigos();
     void reportarRecursos(size_t memoriaLocal = 0) const;
     void menuPrincipal();
+    bool iniciarSesion();
 
 };
 

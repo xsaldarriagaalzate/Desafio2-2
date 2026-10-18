@@ -57,6 +57,11 @@ public:
         datos[tam] = T();
     }
 
+    void eliminarEn(int pos) {
+        for (int i = pos; i < tam - 1; i++) datos[i] = datos[i + 1];
+        tam--;
+    }
+
     int size() const { return tam; }
     int capacidad() const { return cap; }
 

@@ -29,14 +29,14 @@ public:
 
     const Cadena& getNombre() const { return nombreUsuario; }
 
-    const char* getNombreUsuario() {return nombreUsuario.cadena_char();}
-    const char* getClave() {return clave.cadena_char();}
-    const char* getCorreo() {return correo.cadena_char();}
-    const Fecha& getFechaNacimiento() {return fechaNacimiento;}
-    const char* getRutaFotoPerfil() {return rutaFotoPerfil.cadena_char();}
-    const char* getCiudad() {return ciudad.cadena_char();}
-    const char* getPais() {return pais.cadena_char();}
-    const Fecha& getFechaInscripcion() {return fechaInscripcion;}
+    const char* getNombreUsuario() const {return nombreUsuario.cadena_char();}
+    const char* getClave() const {return clave.cadena_char();}
+    const char* getCorreo() const {return correo.cadena_char();}
+    const Fecha& getFechaNacimiento() const {return fechaNacimiento;}
+    const char* getRutaFotoPerfil() const {return rutaFotoPerfil.cadena_char();}
+    const char* getCiudad() const {return ciudad.cadena_char();}
+    const char* getPais() const {return pais.cadena_char();}
+    const Fecha& getFechaInscripcion() const {return fechaInscripcion;}
 
     int cantidadAmigos() const { return amigos.size(); }
     int getAmigo(int i) const { return amigos[i]; }
@@ -54,6 +54,9 @@ public:
     int cantidadRecibidos() const { return recibidos.size(); }
     int getEnviado(int k) const { return enviados[k]; }
     int getRecibido(int k) const { return recibidos[k]; }
+
+    bool claveCorrecta(const Cadena& c) const { return clave == c; }
+    void eliminarSolicitud(int k) { solicitudes.eliminarEn(k); }
 
     bool operator==(const Usuario& otro) const;
 
