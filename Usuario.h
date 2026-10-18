@@ -23,20 +23,20 @@ private:
 
 public:
     Usuario();
-    Usuario(const Cadena& nombreUsuario, const Cadena& clave, const Cadena& correo,const Cadena& fechaNacimiento,
+    Usuario(const Cadena& nombreUsuario, const Cadena& clave, const Cadena& correo,const Fecha& fechaNacimiento,
             const Cadena& rutaFotoPerfil,
-            const Cadena& ciudad, const Cadena& pais, const Cadena& fechaInscripcion);
+            const Cadena& ciudad, const Cadena& pais, const Fecha& fechaInscripcion);
 
     const Cadena& getNombre() const { return nombreUsuario; }
 
     const char* getNombreUsuario() {return nombreUsuario.cadena_char();}
     const char* getClave() {return clave.cadena_char();}
     const char* getCorreo() {return correo.cadena_char();}
-    const char* getFechaNacimiento() {return fechaNacimiento.cadena_char();}
+    const char* getFechaNacimiento() {return fechaNacimiento.aCadena().cadena_char();}
     const char* getRutaFotoPerfil() {return rutaFotoPerfil.cadena_char();}
     const char* getCiudad() {return ciudad.cadena_char();}
     const char* getPais() {return pais.cadena_char();}
-    const char* getFechaInscripcion() {return fechaInscripcion.cadena_char();}
+    const char* getFechaInscripcion() {return fechaInscripcion.aCadena().cadena_char();}
 
     int cantidadAmigos() const { return amigos.size(); }
     int getAmigo(int i) const { return amigos[i]; }

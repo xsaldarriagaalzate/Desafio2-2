@@ -44,7 +44,7 @@ void Mensaje::mostrar() const {
 
 void Mensaje::mostrarCon(const char* nombreEmisor, const char* nombreReceptor) const {
     cout << "[" << fecha << "] " << nombreEmisor << " -> " << nombreReceptor
-              << (leido ? " (leido): " : " (no leido): ") << texto.c_str() << "\n";
+              << (leido ? " (leido): " : " (no leido): ") << texto.cadena_char() << "\n";
 }
 
 bool Mensaje::operator<(const Mensaje& otro) const { return fecha < otro.fecha; }
@@ -56,6 +56,6 @@ bool Mensaje::operator==(const Mensaje& otro) const {
 
 ostream& operator<<(ostream& os, const Mensaje& m) {
     os << "[" << m.fecha << "] #" << m.emisor << " -> #" << m.receptor
-       << (m.leido ? " (leido): " : " (no leido): ") << m.texto.c_str();
+       << (m.leido ? " (leido): " : " (no leido): ") << m.texto.cadena_char();
     return os;
 }

@@ -2,6 +2,7 @@
 #define FECHA_H
 
 #include <iostream>
+#include "Cadena.h"
 
 using namespace std;
 
@@ -27,6 +28,8 @@ public:
 
     long clave() const;
 
+    void aTexto(char* destino) const;
+    Cadena aCadena() const;
     bool desdeTexto(const char* texto);
 
     static Fecha hoy();

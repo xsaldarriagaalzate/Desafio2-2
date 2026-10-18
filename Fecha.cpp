@@ -80,6 +80,25 @@ bool Fecha::desdeTexto(const char* texto) {
     return true;
 }
 
+void Fecha::aTexto(char* destino) const {
+    destino[0]  = static_cast<char>('0' + dia / 10);
+    destino[1]  = static_cast<char>('0' + dia % 10);
+    destino[2]  = '/';
+    destino[3]  = static_cast<char>('0' + mes / 10);
+    destino[4]  = static_cast<char>('0' + mes % 10);
+    destino[5]  = '/';
+    destino[6]  = static_cast<char>('0' + anio / 1000);
+    destino[7]  = static_cast<char>('0' + (anio / 100) % 10);
+    destino[8]  = static_cast<char>('0' + (anio / 10) % 10);
+    destino[9]  = static_cast<char>('0' + anio % 10);
+    destino[10] = '\0';
+}
+
+Cadena Fecha::aCadena() const {
+    char texto[11];
+    aTexto(texto);
+    return Cadena(texto);
+}
 
 bool Fecha::operator==(const Fecha& o) const { return clave() == o.clave(); }
 bool Fecha::operator!=(const Fecha& o) const { return clave() != o.clave(); }

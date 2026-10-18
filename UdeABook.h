@@ -30,12 +30,11 @@ private:
 
 
 public:
-
-
-
     UdeABook();
     bool cargarDatos();
     void verificarCarga() const;
+
+    void menuPrincipal();
 
 };
 

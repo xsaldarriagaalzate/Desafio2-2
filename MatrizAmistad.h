@@ -1,0 +1,4 @@
+#ifndef MATRIZAMISTAD_H
+#define MATRIZAMISTAD_H
+
+#endif // MATRIZAMISTAD_H

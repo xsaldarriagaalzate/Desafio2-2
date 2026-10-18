@@ -21,6 +21,8 @@ add_executable(Desafio2-2 main.cpp
     Mensaje.cpp
     Fecha.h
     Fecha.cpp
+    MatrizAmistad.h
+    MatrizAmistad.cpp
 
 )
 

@@ -74,11 +74,15 @@ bool UdeABook::cargarUsuarios(const char* ruta) {
         Lista<Cadena> campos2 = separarCampos(linea2);
         Lista<Cadena> campos3 = separarCampos(linea3);
 
-        if (campos1.size() == 4 && campos2.size() == 1 && campos3.size() == 3) {
-            usuarios.agregar(Usuario(campos1[0], campos1[1], campos1[2], campos1[3],
-                                     campos2[0],
-                                     campos3[0], campos3[1], campos3[2]));
-        }
+        if (campos1.size() == 4 && campos2.size() == 1 && campos3.size() == 3) continue;
+
+        Fecha nacimiento, inscripcion;
+        if (!nacimiento.desdeTexto(campos1[3].cadena_char()) ||
+            !inscripcion.desdeTexto(campos3[2].cadena_char())) continue;
+
+        usuarios.agregar(Usuario(campos1[0], campos1[1], campos1[2], nacimiento,
+                                 campos2[0],
+                                 campos3[0], campos3[1], inscripcion));
     }
     return true;
 }
@@ -234,4 +238,23 @@ void UdeABook::verificarCarga() const {
         m.mostrarCon(usuarios[m.getEmisor()].getNombre().cadena_char(),
                      usuarios[m.getReceptor()].getNombre().cadena_char());
     }
+}
+
+void UdeABook::menuPrincipal() {
+    mostrarMejoresAmigos();              // 3 fotos al entrar
+    char opcion;
+    do {
+        // imprimir bienvenida y menú (como en la Figura 2 del enunciado)
+        cin >> opcion;
+        switch (opcion) {
+        case '1': administrarAmistades(); break;
+        case '2': visitarPerfil();        break;
+        case '3': verSugerencias();       break;
+        case '4': administrarMensajes();  break;
+        case 'N': case 'n': mostrarMejoresAmigos(); break;
+        case 'S': case 's': break;
+        default: cout << "Opción no válida\n";
+        }
+    } while (opcion != 'S' && opcion != 's');
+    cerrarSesion();
 }

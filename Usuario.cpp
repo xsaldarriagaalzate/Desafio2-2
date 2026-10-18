@@ -5,8 +5,8 @@ using namespace std;
 Usuario::Usuario() {}
 
 Usuario::Usuario(const Cadena& nombreUsuario, const Cadena& clave, const Cadena& correo,
-                 const Cadena& fechaNacimiento, const Cadena& rutaFotoPerfil,
-                 const Cadena& ciudad, const Cadena& pais, const Cadena& fechaInscripcion)
+                 const Fecha& fechaNacimiento, const Cadena& rutaFotoPerfil,
+                 const Cadena& ciudad, const Cadena& pais, const Fecha& fechaInscripcion)
     : nombreUsuario(nombreUsuario), clave(clave), correo(correo),
     fechaNacimiento(fechaNacimiento), rutaFotoPerfil(rutaFotoPerfil),
     ciudad(ciudad), pais(pais), fechaInscripcion(fechaInscripcion) {}
@@ -16,9 +16,9 @@ bool Usuario::operator==(const Usuario& otro) const {
 }
 
 void Usuario::mostrar() const {
-    cout << "[" << nombreUsuario.cadena_char() << "] [" << clave.cadena_char() << "] [" << correo.cadena_char() << "] [" << fechaNacimiento.cadena_char() << "]\n"
+    cout << "[" << nombreUsuario.cadena_char() << "] [" << clave.cadena_char() << "] [" << correo.cadena_char() << "] [" << fechaNacimiento.aCadena().cadena_char() << "]\n"
          << "  foto: [" << rutaFotoPerfil.cadena_char() << "]\n"
-         << "  [" << ciudad.cadena_char() << "] [" << pais.cadena_char() << "] [" << fechaInscripcion.cadena_char() << "]\n";
+         << "  [" << ciudad.cadena_char() << "] [" << pais.cadena_char() << "] [" << fechaInscripcion.aCadena().cadena_char() << "]\n";
 }
 
 bool Usuario::esAmigo(int indice) const {
